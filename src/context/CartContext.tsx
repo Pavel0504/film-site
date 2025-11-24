@@ -1,11 +1,11 @@
 import React, { createContext, useContext, useState } from 'react';
+import { products } from '../data/products';
 
 export interface CartItem {
   id: number;
   title: string;
   price: number;
   quantity: number;
-  // Добавлено поле image (опциональное)
   image?: string;
 }
 
@@ -25,13 +25,21 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const addToCart = (item: Omit<CartItem, 'quantity'> & { quantity?: number }) => {
     setItems(prev => {
+      // если image не передали — ищем продукт по id
+      const product = products.find(p => p.id === item.id);
+
+      const image = item.image ?? product?.image ?? '';
+
       const existing = prev.find(i => i.id === item.id);
       if (existing) {
         return prev.map(i =>
-          i.id === item.id ? { ...i, quantity: i.quantity + (item.quantity || 1) } : i
+          i.id === item.id
+            ? { ...i, quantity: i.quantity + (item.quantity || 1) }
+            : i
         );
       }
-      return [...prev, { ...item, quantity: item.quantity || 1 }];
+
+      return [...prev, { ...item, quantity: item.quantity || 1, image }];
     });
   };
 

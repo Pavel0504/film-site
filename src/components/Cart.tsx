@@ -10,23 +10,11 @@ interface CartProps {
 
 // Вспомогательный компонент для изображения товара
 function ProductImage({ src, alt }: { src?: string; alt?: string }) {
-  const [failed, setFailed] = useState(false);
-
-  if (!src || failed) {
-    // Заглушка (можно заменить на svg/иконку)
-    return (
-      <div className="w-16 h-16 bg-gray-200 rounded mr-4 flex-shrink-0 flex items-center justify-center text-gray-400">
-        📦
-      </div>
-    );
-  }
-
   return (
     <img
       src={src}
       alt={alt ?? 'product'}
       className="w-16 h-16 object-cover rounded mr-4 flex-shrink-0"
-      onError={() => setFailed(true)}
       loading="lazy"
     />
   );
@@ -80,6 +68,10 @@ function Cart({ isOpen, onClose }: CartProps) {
   };
 
   if (!isOpen) return null;
+
+  // внутри Cart перед return
+console.log('cart items:', items);
+
 
   return (
     <>
