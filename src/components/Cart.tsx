@@ -1,11 +1,11 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { X, Minus, Plus } from 'lucide-react';
 import { useCart } from '../context/CartContext';
-import OrderModal from './OrderModal';
 
 interface CartProps {
   isOpen: boolean;
   onClose: () => void;
+  onOrderComplete: () => void; // новый проп — сообщает родителю об окончании заказа
 }
 
 // Вспомогательный компонент для изображения товара
@@ -20,9 +20,8 @@ function ProductImage({ src, alt }: { src?: string; alt?: string }) {
   );
 }
 
-function Cart({ isOpen, onClose }: CartProps) {
+function Cart({ isOpen, onClose, onOrderComplete }: CartProps) {
   const { items, removeFromCart, updateQuantity, total, clearCart } = useCart();
-  const [showOrderModal, setShowOrderModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -48,30 +47,32 @@ function Cart({ isOpen, onClose }: CartProps) {
             name: formData.name,
             contact: formData.contact,
             address: formData.address,
-            items: items,
-            total: total
+            items,
+            total
           }
         })
       });
 
-      setShowOrderModal(true);
+      // очистим корзину и сбросим форму
       clearCart();
       setFormData({ name: '', contact: '', address: '' });
+
+      // сообщаем родителю — он закроет корзину и откроет OrderModal
+      onOrderComplete();
     } catch (error) {
       console.error('Error submitting order:', error);
-      setShowOrderModal(true);
+
+      // всё равно очищаем и показываем модал об ошибке/успехе — родитель покажет OrderModal
       clearCart();
       setFormData({ name: '', contact: '', address: '' });
+      onOrderComplete();
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  // если корзина закрыта — просто не рендерим её (Cart размонтируется)
   if (!isOpen) return null;
-
-  // внутри Cart перед return
-console.log('cart items:', items);
-
 
   return (
     <>
@@ -204,15 +205,6 @@ console.log('cart items:', items);
           )}
         </div>
       </div>
-
-      {showOrderModal && (
-        <OrderModal
-          onClose={() => {
-            setShowOrderModal(false);
-            onClose();
-          }}
-        />
-      )}
     </>
   );
 }
