@@ -11,17 +11,48 @@ interface CartProps {
 function Cart({ isOpen, onClose }: CartProps) {
   const { items, removeFromCart, updateQuantity, total, clearCart } = useCart();
   const [showOrderModal, setShowOrderModal] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     contact: '',
     address: ''
   });
 
-  const handleSubmitOrder = (e: React.FormEvent) => {
+  const handleSubmitOrder = async (e: React.FormEvent) => {
     e.preventDefault();
-    setShowOrderModal(true);
-    clearCart();
-    setFormData({ name: '', contact: '', address: '' });
+    setIsSubmitting(true);
+
+    try {
+      const apiUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-email`;
+
+      await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          type: 'order',
+          data: {
+            name: formData.name,
+            contact: formData.contact,
+            address: formData.address,
+            items: items,
+            total: total
+          }
+        })
+      });
+
+      setShowOrderModal(true);
+      clearCart();
+      setFormData({ name: '', contact: '', address: '' });
+    } catch (error) {
+      console.error('Error submitting order:', error);
+      setShowOrderModal(true);
+      clearCart();
+      setFormData({ name: '', contact: '', address: '' });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (!isOpen) return null;
@@ -31,122 +62,130 @@ function Cart({ isOpen, onClose }: CartProps) {
       <div className="fixed inset-0 bg-black/50 z-40" onClick={onClose} />
 
       <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
-        <div className="bg-white rounded-lg shadow-2xl w-full max-w-2xl max-h-screen overflow-y-auto">
-        <div className="sticky top-0 bg-white border-b border-gray-200 p-4 flex items-center justify-between">
-          <h2 className="text-2xl font-bold text-gray-800">Корзина</h2>
-          <button
-            onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-          >
-            <X className="w-6 h-6" />
-          </button>
-        </div>
-
-        {items.length === 0 ? (
-          <div className="p-8 text-center text-gray-500">
-            <p className="text-lg">Корзина пуста</p>
+        <div className="bg-white rounded-lg shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
+          <div className="bg-white border-b border-gray-200 p-6 flex items-center justify-between flex-shrink-0">
+            <h2 className="text-2xl font-bold text-gray-800">Ваш заказ:</h2>
+            <button
+              onClick={onClose}
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              <X className="w-6 h-6" />
+            </button>
           </div>
-        ) : (
-          <>
-            <div className="p-4 space-y-4">
-              {items.map((item) => (
-                <div key={item.id} className="bg-gray-50 p-4 rounded-lg">
-                  <div className="flex justify-between items-start mb-3">
-                    <h3 className="font-semibold text-gray-800">{item.title}</h3>
+
+          {items.length === 0 ? (
+            <div className="p-8 text-center text-gray-500">
+              <p className="text-lg">Корзина пуста</p>
+            </div>
+          ) : (
+            <>
+              <div className="flex-1 overflow-y-auto p-6">
+                <div className="space-y-4 mb-6">
+                  {items.map((item) => (
+                    <div key={item.id} className="flex items-center justify-between pb-4 border-b border-gray-200">
+                      <div className="flex items-center flex-1">
+                        <div className="w-16 h-16 bg-gray-200 rounded mr-4 flex-shrink-0" />
+                        <div className="flex-1">
+                          <h3 className="font-normal text-gray-800 mb-2">{item.title}</h3>
+                          <div className="flex items-center space-x-3">
+                            <button
+                              onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                              className="w-6 h-6 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition-colors"
+                            >
+                              <Minus className="w-3 h-3" />
+                            </button>
+                            <span className="w-6 text-center font-normal">{item.quantity}</span>
+                            <button
+                              onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                              className="w-6 h-6 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition-colors"
+                            >
+                              <Plus className="w-3 h-3" />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-4 ml-4">
+                        <span className="font-normal text-gray-800 text-lg">
+                          {(item.price * item.quantity).toLocaleString('ru-RU')} р.
+                        </span>
+                        <button
+                          onClick={() => removeFromCart(item.id)}
+                          className="text-gray-400 hover:text-red-500 transition-colors"
+                        >
+                          <X className="w-5 h-5" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mb-4">
+                  <p className="text-right text-lg text-gray-800 mb-6">
+                    Сумма: <span className="font-semibold">{total.toLocaleString('ru-RU')} р.</span>
+                  </p>
+                </div>
+
+                <form onSubmit={handleSubmitOrder} className="space-y-4">
+                  <div>
+                    <label className="block text-sm text-gray-700 mb-2">
+                      Ваше имя
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.name}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      placeholder=""
+                      className="w-full px-4 py-3 border border-gray-300 rounded focus:outline-none focus:border-gray-400"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm text-gray-700 mb-2">
+                      Контакт
+                      <span className="block text-xs text-gray-500">(email, телефон, мессенджеры)</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.contact}
+                      onChange={(e) => setFormData({ ...formData, contact: e.target.value })}
+                      placeholder="vash-email@mail.ru, 8-905-111-22-33"
+                      className="w-full px-4 py-3 border border-gray-300 rounded focus:outline-none focus:border-gray-400"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm text-gray-700 mb-2">
+                      Адрес доставки
+                      <span className="block text-xs text-gray-500">не обязательно</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.address}
+                      onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                      placeholder=""
+                      className="w-full px-4 py-3 border border-gray-300 rounded focus:outline-none focus:border-gray-400"
+                    />
+                  </div>
+
+                  <div className="pt-4">
+                    <p className="text-right text-xl text-gray-800 mb-6">
+                      Итоговая сумма: <span className="font-semibold">{total.toLocaleString('ru-RU')} р.</span>
+                    </p>
+
                     <button
-                      onClick={() => removeFromCart(item.id)}
-                      className="text-gray-400 hover:text-red-500 transition-colors"
+                      type="submit"
+                      disabled={isSubmitting}
+                      className="w-full bg-black hover:bg-gray-800 text-white font-normal py-4 rounded transition-all disabled:opacity-50"
                     >
-                      <X className="w-5 h-5" />
+                      {isSubmitting ? 'Отправка...' : 'Оформить заказ'}
                     </button>
                   </div>
-
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2 bg-white border border-gray-300 rounded">
-                      <button
-                        onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                        className="p-2 hover:bg-gray-100"
-                      >
-                        <Minus className="w-4 h-4" />
-                      </button>
-                      <span className="w-8 text-center font-semibold">{item.quantity}</span>
-                      <button
-                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                        className="p-2 hover:bg-gray-100"
-                      >
-                        <Plus className="w-4 h-4" />
-                      </button>
-                    </div>
-                    <span className="font-semibold text-[#ff6347]">
-                      {(item.price * item.quantity).toLocaleString('ru-RU')} р.
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div className="border-t border-gray-200 p-4 space-y-4">
-              <form onSubmit={handleSubmitOrder} className="space-y-4">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Ваше имя
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    placeholder="Иван Иванов"
-                    className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-[#ff6347]"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Контакт (email, телефон, мессенджер)
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.contact}
-                    onChange={(e) => setFormData({ ...formData, contact: e.target.value })}
-                    placeholder="+7 XXX XXX XX XX или email"
-                    className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-[#ff6347]"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Адрес доставки (не обязательно)
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.address}
-                    onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                    placeholder="Москва, ул. Примера, 1"
-                    className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-[#ff6347]"
-                  />
-                </div>
-
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <div className="flex justify-between items-center mb-4">
-                    <span className="text-lg font-semibold text-gray-800">Итого:</span>
-                    <span className="text-2xl font-bold text-[#ff6347]">
-                      {total.toLocaleString('ru-RU')} р.
-                    </span>
-                  </div>
-
-                  <button
-                    type="submit"
-                    className="w-full bg-[#ff6347] hover:bg-[#ff4529] text-white font-semibold py-3 rounded transition-all"
-                  >
-                    Оформить заказ
-                  </button>
-                </div>
-              </form>
-            </div>
-          </>
-        )}
+                </form>
+              </div>
+            </>
+          )}
         </div>
       </div>
 

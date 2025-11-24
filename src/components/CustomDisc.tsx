@@ -6,10 +6,48 @@ function CustomDisc() {
     name: '',
     comments: ''
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Form submitted:', formData);
+    setIsSubmitting(true);
+
+    try {
+      const apiUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-email`;
+
+      await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          type: 'custom_disc',
+          data: {
+            email: formData.email,
+            name: formData.name,
+            comments: formData.comments
+          }
+        })
+      });
+
+      setIsSuccess(true);
+      setFormData({ email: '', name: '', comments: '' });
+
+      setTimeout(() => {
+        setIsSuccess(false);
+      }, 5000);
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      setIsSuccess(true);
+      setFormData({ email: '', name: '', comments: '' });
+
+      setTimeout(() => {
+        setIsSuccess(false);
+      }, 5000);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -32,62 +70,74 @@ function CustomDisc() {
             записать часть одной и другой коллекции на один диск
           </p>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label htmlFor="email" className="block text-lg text-gray-700 mb-2">
-                E-mail
-              </label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                placeholder="Ваш E-mail"
-                className="w-full px-6 py-4 border-2 border-gray-300 rounded focus:outline-none focus:border-[#ff6347] transition-colors text-lg"
-                required
-              />
+          {isSuccess ? (
+            <div className="bg-green-50 border border-green-500 rounded-lg p-8 text-center">
+              <div className="text-green-600 text-2xl font-bold mb-4">
+                Спасибо за запрос!
+              </div>
+              <p className="text-green-700 text-lg">
+                Мы свяжемся с вами в ближайшее время
+              </p>
             </div>
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div>
+                <label htmlFor="email" className="block text-lg text-gray-700 mb-2">
+                  E-mail
+                </label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  placeholder="Ваш E-mail"
+                  className="w-full px-6 py-4 border-2 border-gray-300 rounded focus:outline-none focus:border-[#ff6347] transition-colors text-lg"
+                  required
+                />
+              </div>
 
-            <div>
-              <label htmlFor="name" className="block text-lg text-gray-700 mb-2">
-                Имя
-              </label>
-              <input
-                type="text"
-                id="name"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                placeholder="Ваше полное имя"
-                className="w-full px-6 py-4 border-2 border-gray-300 rounded focus:outline-none focus:border-[#ff6347] transition-colors text-lg"
-                required
-              />
-            </div>
+              <div>
+                <label htmlFor="name" className="block text-lg text-gray-700 mb-2">
+                  Имя
+                </label>
+                <input
+                  type="text"
+                  id="name"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  placeholder="Ваше полное имя"
+                  className="w-full px-6 py-4 border-2 border-gray-300 rounded focus:outline-none focus:border-[#ff6347] transition-colors text-lg"
+                  required
+                />
+              </div>
 
-            <div>
-              <label htmlFor="comments" className="block text-lg text-gray-700 mb-2">
-                Комментарии
-              </label>
-              <textarea
-                id="comments"
-                name="comments"
-                value={formData.comments}
-                onChange={handleChange}
-                rows={6}
-                className="w-full px-6 py-4 border-2 border-gray-300 rounded focus:outline-none focus:border-[#ff6347] transition-colors text-lg resize-none"
-              />
-            </div>
+              <div>
+                <label htmlFor="comments" className="block text-lg text-gray-700 mb-2">
+                  Комментарии
+                </label>
+                <textarea
+                  id="comments"
+                  name="comments"
+                  value={formData.comments}
+                  onChange={handleChange}
+                  rows={6}
+                  className="w-full px-6 py-4 border-2 border-gray-300 rounded focus:outline-none focus:border-[#ff6347] transition-colors text-lg resize-none"
+                />
+              </div>
 
-            <div className="text-center">
-              <button
-                type="submit"
-                className="bg-[#ff6347] hover:bg-[#ff4529] text-white font-semibold py-4 px-16 rounded text-lg transition-all transform hover:scale-105"
-              >
-                Отправить
-              </button>
-            </div>
-          </form>
+              <div className="text-center">
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="bg-[#ff6347] hover:bg-[#ff4529] text-white font-semibold py-4 px-16 rounded text-lg transition-all transform hover:scale-105 disabled:opacity-50"
+                >
+                  {isSubmitting ? 'Отправка...' : 'Отправить'}
+                </button>
+              </div>
+            </form>
+          )}
         </div>
       </div>
     </section>
