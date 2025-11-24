@@ -1,16 +1,11 @@
-import { useState } from 'react';
 import ProductCard from './ProductCard';
-import ProductDetail from './ProductDetail';
 import { products } from '../data/products';
 
-function ProductGrid() {
-  const [selectedProductId, setSelectedProductId] = useState<number | null>(null);
-  const selectedProduct = products.find(p => p.id === selectedProductId);
+interface ProductGridProps {
+  onProductClick?: (id: number) => void;
+}
 
-  if (selectedProduct) {
-    return <ProductDetail product={selectedProduct} onClose={() => setSelectedProductId(null)} />;
-  }
-
+function ProductGrid({ onProductClick }: ProductGridProps) {
   return (
     <section className="py-16 bg-gray-50">
       <div className="container mx-auto px-4">
@@ -20,7 +15,7 @@ function ProductGrid() {
               key={product.id}
               id={product.id}
               {...product}
-              onCardClick={() => setSelectedProductId(product.id)}
+              onCardClick={() => onProductClick?.(product.id)}
             />
           ))}
         </div>

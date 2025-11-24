@@ -30,7 +30,8 @@ function Cart({ isOpen, onClose }: CartProps) {
     <>
       <div className="fixed inset-0 bg-black/50 z-40" onClick={onClose} />
 
-      <div className="fixed right-0 top-0 h-screen w-full md:w-96 bg-white shadow-2xl z-50 overflow-y-auto">
+      <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
+        <div className="bg-white rounded-lg shadow-2xl w-full max-w-2xl max-h-screen overflow-y-auto">
         <div className="sticky top-0 bg-white border-b border-gray-200 p-4 flex items-center justify-between">
           <h2 className="text-2xl font-bold text-gray-800">Корзина</h2>
           <button
@@ -146,6 +147,7 @@ function Cart({ isOpen, onClose }: CartProps) {
             </div>
           </>
         )}
+        </div>
       </div>
 
       {showOrderModal && (
