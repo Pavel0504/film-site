@@ -14,7 +14,7 @@ export const products: Product[] = [
     title: 'Советские',
     price: 14000,
     oldPrice: 15999,
-    image: 'https://optim.tildacdn.com/tild6237-3364-4937-a233-323734376362/-/resize/500x/-/format/webp/HDD_Mockup1.png.webp',
+    image: 'https://i.ibb.co/d4qr42Ws/HDD-Mockup1-png.webp',
     storage: '2TB',
     films: [
       '12 лет рабства 7.9 Стив МакКуин 2013',
@@ -33,7 +33,7 @@ export const products: Product[] = [
     title: 'Комедии и мелодрамы',
     price: 14000,
     oldPrice: 15999,
-    image: 'https://optim.tildacdn.com/tild3032-3835-4839-a338-326366316539/-/resize/500x/-/format/webp/HDD_Mockup2.png.webp',
+    image: 'https://i.ibb.co/8LkG0Z4n/HDD-Mockup2-png.webp',
     storage: '2TB',
     films: [
       'Кес 8.0 Кен Лоуч 1969',
@@ -52,7 +52,7 @@ export const products: Product[] = [
     title: 'Мультфильмы и Фентези 2',
     price: 14000,
     oldPrice: 15999,
-    image: 'https://optim.tildacdn.com/tild3837-3761-4162-b663-623232636364/-/resize/500x/-/format/webp/HDD_Mockup3.png.webp',
+    image: 'https://i.ibb.co/zWp2HRwq/HDD-Mockup3-png.webp',
     storage: '2TB',
     films: [
       'Крепкий Орешек 1-4 Брюс Уиллис 1988-2007',
@@ -72,7 +72,7 @@ export const products: Product[] = [
     title: 'Мужская коллекция',
     price: 14000,
     oldPrice: 15999,
-    image: 'https://optim.tildacdn.com/tild6236-6238-4561-a336-636132666435/-/resize/500x/-/format/webp/HDD_Mockup4.png.webp',
+    image: 'https://i.ibb.co/XZHXfSrm/HDD-Mockup4-png.webp',
     storage: '2TB',
     films: [
       'Форрест Гамп 8.8 Роберт Земекис 1994',
@@ -91,7 +91,7 @@ export const products: Product[] = [
     title: 'Marvel и Приключения',
     price: 14000,
     oldPrice: null,
-    image: 'https://optim.tildacdn.com/tild6435-6537-4963-b635-623136306232/-/resize/500x/-/format/webp/HDD_Mockup5.png.webp',
+    image: 'https://i.ibb.co/p6H0J5ZV/HDD-Mockup5-png.webp',
     storage: '2TB',
     films: [
       'Мстители 8.0 Джосс Уидон 2012',
@@ -110,7 +110,7 @@ export const products: Product[] = [
     title: 'Новинки 2025 - 2024',
     price: 14000,
     oldPrice: null,
-    image: 'https://optim.tildacdn.com/tild6362-3563-4266-a631-356164306433/-/resize/500x/-/format/webp/HDD_Mockup6.png.webp',
+    image: 'https://i.ibb.co/5WwTxQKK/HDD-Mockup6-png.webp',
     storage: '2TB',
     films: [
       'Киллерс на выбор 7.5 Дэвид Финчер 2014',
@@ -128,7 +128,7 @@ export const products: Product[] = [
     title: 'Триллеры и Мистика',
     price: 14000,
     oldPrice: null,
-    image: 'https://optim.tildacdn.com/tild3331-6366-4236-a633-396134306539/-/resize/500x/-/format/webp/HDD_Mockup7.png.webp',
+    image: 'https://i.ibb.co/zHJ1TWHy/HDD-Mockup7-png.webp',
     storage: '2TB',
     films: [
       'Психо 8.4 Альфред Хичкок 1960',
@@ -146,7 +146,7 @@ export const products: Product[] = [
     title: 'Лучшие сериалы Топ',
     price: 14000,
     oldPrice: null,
-    image: 'https://optim.tildacdn.com/tild3832-6134-4636-a364-333563633862/-/resize/500x/-/format/webp/HDD_Mockup8.png.webp',
+    image: 'https://i.ibb.co/zVMCCqrr/HDD-Mockup8-png.webp',
     storage: '2TB',
     films: [
       'Игра престолов 9.2 1 сезон 10 серий',
