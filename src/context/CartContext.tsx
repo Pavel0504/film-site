@@ -5,6 +5,8 @@ export interface CartItem {
   title: string;
   price: number;
   quantity: number;
+  // Добавлено поле image (опциональное)
+  image?: string;
 }
 
 interface CartContextType {

@@ -8,6 +8,30 @@ interface CartProps {
   onClose: () => void;
 }
 
+// Вспомогательный компонент для изображения товара
+function ProductImage({ src, alt }: { src?: string; alt?: string }) {
+  const [failed, setFailed] = useState(false);
+
+  if (!src || failed) {
+    // Заглушка (можно заменить на svg/иконку)
+    return (
+      <div className="w-16 h-16 bg-gray-200 rounded mr-4 flex-shrink-0 flex items-center justify-center text-gray-400">
+        📦
+      </div>
+    );
+  }
+
+  return (
+    <img
+      src={src}
+      alt={alt ?? 'product'}
+      className="w-16 h-16 object-cover rounded mr-4 flex-shrink-0"
+      onError={() => setFailed(true)}
+      loading="lazy"
+    />
+  );
+}
+
 function Cart({ isOpen, onClose }: CartProps) {
   const { items, removeFromCart, updateQuantity, total, clearCart } = useCart();
   const [showOrderModal, setShowOrderModal] = useState(false);
@@ -84,7 +108,7 @@ function Cart({ isOpen, onClose }: CartProps) {
                   {items.map((item) => (
                     <div key={item.id} className="flex items-center justify-between pb-4 border-b border-gray-200">
                       <div className="flex items-center flex-1">
-                        <div className="w-16 h-16 bg-gray-200 rounded mr-4 flex-shrink-0" />
+                        <ProductImage src={item.image} alt={item.title} />
                         <div className="flex-1">
                           <h3 className="font-normal text-gray-800 mb-2">{item.title}</h3>
                           <div className="flex items-center space-x-3">
